@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <title>raylib web game</title>
+
+    <meta name="title" content="raylib web game">
+    <meta name="description" content="New raylib web videogame, developed using raylib videogames library">
+    <meta name="keywords" content="raylib, games, html5, programming, C, C++, library, learn, videogames">
+    <meta name="viewport" content="width=device-width">
+
+    <meta property="og:title" content="raylib web game">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image" content="https://www.raylib.com/common/img/raylib_logo.png">
+    <meta property="og:site_name" content="raylib.com">
+    <meta property="og:url" content="https://www.raylib.com/games.html">
+    <meta property="og:description" content="New raylib web videogame, developed using raylib videogames library">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@raysan5">
+    <meta name="twitter:title" content="raylib web game">
+    <meta name="twitter:image" content="https://www.raylib.com/common/raylib_logo.png">
+    <meta name="twitter:url" content="https://www.raylib.com/games.html">
+    <meta name="twitter:description" content="New raylib web game, developed using raylib videogames library">
+
+    <link rel="shortcut icon" href="https://www.raylib.com/favicon.ico">
+
+    <style>
+        body { margin: 0px; }
+        canvas.emscripten { border: 0px none; background-color: black; }
+    </style>
+    <script type='text/javascript' src="https://cdn.jsdelivr.net/gh/eligrey/FileSaver.js/dist/FileSaver.min.js"> </script>
+    <script type='text/javascript'>
+        function saveFileFromMEMFSToDisk(memoryFSname, localFSname)
+        {
+            var isSafari = false;
+            var data = FS.readFile(memoryFSname);
+            var blob;
+
+            if (isSafari) blob = new Blob([data.buffer], { type: "application/octet-stream" });
+            else blob = new Blob([data.buffer], { type: "application/octet-binary" });
+
+            saveAs(blob, localFSname);
+        }
+    </script>
+  </head>
+  <body>
+    <canvas class=emscripten id=canvas oncontextmenu=event.preventDefault() tabindex=-1></canvas>
+    <p id="output"></p>
+
+    <script>
+      var Module = {
+        onRuntimeInitialized: function() {
+          callGPT();
+        }
+      };
+
+      async function fetchGPTResponse() {
+        const apiKey = "YOUR_API_KEY";
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: "gpt-4.1",
+            messages: [{ role: "user", content: "Whats 1+1, in one word." }]
+          })
+        });
+        const data = await response.json();
+        return data.choices[0].message.content;
+      }
+
+      function callGPT() {
+        fetchGPTResponse().then((result) => {
+          const lengthBytes = lengthBytesUTF8(result) + 1;
+          const stringOnWasmHeap = Module._malloc(lengthBytes);
+          stringToUTF8(result, stringOnWasmHeap, lengthBytes);
+          Module.ccall('onGPTResponse', 'void', ['number'], [stringOnWasmHeap]);
+        });
+      }
+    </script>
+
+    <script src="shell.js"></script>
+    {{{ SCRIPT }}}
+  </body>
+</html>
