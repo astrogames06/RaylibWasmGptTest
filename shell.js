@@ -1,5 +1,5 @@
 async function fetchGPTResponse() {
-  const apiKey = "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";
+  const apiKey = "YOUR_API_KEY";
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -27,3 +27,4 @@ function callGPT(callbackPtr) {
     Module.ccall('onGPTResponse', 'void', ['number'], [stringOnWasmHeap]);
   });
 }
+
