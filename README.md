@@ -1,1 +1,1 @@
-# raylib-game-template
+# raylib-wasm-gpt-test
